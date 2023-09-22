@@ -11,7 +11,13 @@ export interface CalanderData {
     month: string,
     day: string,
     weekday: string,
-    indexInWeek: number 
+    indexInWeek: number,
+    fullDay: string
+}
+
+export interface MarkerData {
+    date: string
+    style: object
 }
 
 const DATE_FNS_LOCALES : Locales = {
@@ -21,21 +27,22 @@ const DATE_FNS_LOCALES : Locales = {
 
 const YEAR = "yyyy"
 const MONTH = "MM"
+const MONTH_FULL = "MMM"
 const DAY = "dd"
 const WEEKDAY = "EEEE"
+const FULL_DATE = "dd-MM-yyyy"
 
-export const getMonthDate = (locale: string) : CalanderData[] => {
+export const getMonthDate = (locale: string, updateMonth: number) : CalanderData[] => {
     const dateFnsLocale = DATE_FNS_LOCALES[locale as keyof Locales]
     const currentDate = new Date()
     const currentYear = currentDate?.getFullYear()
-    const currentMonth = currentDate?.getMonth()
+    const currentMonth = updateMonth ?? currentDate?.getMonth()
     const currentMonthDayCount = new Date(currentYear, currentMonth, 0).getDate();
     const totalDaysInYear = ((currentYear % 4 === 0 && currentYear % 100 > 0) || currentYear % 400 == 0) ? 366 : 365;
     const firstDayOfMonth = new Date()
     firstDayOfMonth.setDate(1)
     firstDayOfMonth.setMonth(9)
-    console.log(firstDayOfMonth)
-
+    
     const daysData : CalanderData[] = []
     for (let i = 0; i < currentMonthDayCount; i++) {
       daysData.push({
@@ -43,11 +50,26 @@ export const getMonthDate = (locale: string) : CalanderData[] => {
          month: format(firstDayOfMonth, MONTH),
          day: format(firstDayOfMonth, DAY),
          weekday: format(firstDayOfMonth, WEEKDAY, { locale: dateFnsLocale }),
-         indexInWeek: getFoIndexStartingMonday(firstDayOfMonth.getDay())
+         indexInWeek: getFoIndexStartingMonday(firstDayOfMonth.getDay()),
+         fullDay: format(firstDayOfMonth, FULL_DATE)
       })
       firstDayOfMonth.setDate(firstDayOfMonth.getDate() + 1)
     }
     return convertToFiveBySevenFormat(daysData)
+  }
+
+
+  export const getMonthAndYear = (locale: string)  => {
+    const currentDate = new Date()
+    const currentYear = currentDate?.getFullYear()
+    const currentMonth = currentDate?.getMonth()
+    const month = format(currentDate, MONTH_FULL, {locale: DATE_FNS_LOCALES[locale as keyof Locales]})
+    return {
+        month: month,
+        year: currentYear,
+        monthNumber: currentMonth
+    } 
+    
   }
 
   const getFoIndexStartingMonday = (index: number) => {
@@ -56,14 +78,26 @@ export const getMonthDate = (locale: string) : CalanderData[] => {
   const convertToFiveBySevenFormat = (daysData: CalanderData[]) => {
       const startFromIndex = daysData[0].indexInWeek
       const convertedData = []
-      console.log("start index"+startFromIndex)
       for(let i =0 ; i< startFromIndex; i++){
         convertedData.push(undefined)
       }
       convertedData.push(...daysData)
-      const lastGridItems = (6 * 7) - convertedData.length
-      for(let i =0 ; i< lastGridItems; i++){
-        convertedData.push(undefined)
-      }
+      const lastGridItems = (5 * 7) - convertedData.length
+      
+    //   for(let i =0 ; i< lastGridItems; i++){
+    //     convertedData.push(undefined)
+    //   }
       return convertedData || []
   }
+
+  export const getWeekDays = (locale: string) =>
+{
+    var baseDate = new Date(Date.UTC(2017, 0, 2));
+    var weekDays = [];
+    for(let i = 0; i < 7; i++)
+    {       
+        weekDays.push(baseDate.toLocaleDateString(locale, { weekday: 'long' }));
+        baseDate.setDate(baseDate.getDate() + 1);       
+    }
+    return weekDays;
+}

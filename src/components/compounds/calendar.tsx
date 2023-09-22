@@ -1,29 +1,75 @@
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
-import { CalanderData, getMonthDate } from "../../Utils/dates";
+import {FlatList, Image, StyleSheet, Text, View} from 'react-native';
+import {CalanderData, MarkerData, getMonthAndYear, getMonthDate, getWeekDays} from '../../Utils/dates';
+import Marker from '../atoms/Marker';
+import CalendarItem from '../molecules/CalenderItem';
+import WeekDayView from '../molecules/WeekDayView';
+import BottomBar from '../molecules/BottomBar';
+import { LEFT_IMAGE_URL, RIGT_IMAGE_URL } from '../../Utils/constants';
+import { useState } from 'react';
 
 interface CalendarProps {
-   locale: string
+  locale: string;
+  markerList: Map<string, MarkerData>
 }
 
-const Calendar = ({ locale } : CalendarProps) => {
-    const dataList: CalanderData[] = getMonthDate(locale)
-    const datesCurrentMonth = getMonthDate(locale)
-    return  <FlatList
-    data={dataList}
-    renderItem={({ item }) => (
-      <View style={{ flex: 1, flexDirection: 'column', margin: 1 }}>
-         <Text>{item?.month + " " + item?.day}</Text>
-      </View>
-    )}
-    numColumns={6}
-    
-  />
-  };
-  
+interface MarkerData {
+    style: object
+}
 
-  const styles = StyleSheet.create({
+const Calendar = ({locale, markerList}: CalendarProps) => {
+  const monthAndYear = getMonthAndYear(locale)
+  const [currentMonth, setCurrentMonth] = useState(monthAndYear.monthNumber)
+  const [dataList, setDataList] =  useState(getMonthDate(locale, currentMonth)) 
+  console.log(JSON.stringify(dataList))
+
+  const updateMonthIncrease = () => {
+      setCurrentMonth(currentMonth + 1)
+      setDataList(getMonthDate(locale, currentMonth))
+  }
+
+  const updateMonthDecrease = () => {
+    setCurrentMonth(currentMonth - 1)
+    setDataList(getMonthDate(locale, currentMonth))
+    console.log(JSON.stringify(dataList))
+  }
+
+  const getListItem = (item: CalanderData) => {
+    const markerData : MarkerData = item ? markerList.has(item.fullDay) ? markerList.get(item.fullDay) : styles.default : null
+    return <CalendarItem style={markerData} text={item?.day}/>
+  }
+
+  return (
+    <View>
+        <WeekDayView weekDayList={getWeekDays("de")}/>
+<FlatList
+      style={styles.listStyle}
+      data={dataList}
+      renderItem={({item}) => getListItem(item)}
+      numColumns={7}
+    />
+    <BottomBar  
+    onPressRight={updateMonthIncrease}
+    onPressLeft={updateMonthDecrease}
+    monthName={monthAndYear?.month}
+   year={monthAndYear?.year}
+   leftImage={LEFT_IMAGE_URL}
+   rightImage={RIGT_IMAGE_URL} />
+    </View>
     
-   
-  })
-  
+  );
+};
+
+const styles = StyleSheet.create({
+    listStyle: {
+      flexGrow: 0
+    },
+    default: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        marginHorizontal: 10,
+        backgroundColor: "#9796"
+      }
+});
+
 export default Calendar;

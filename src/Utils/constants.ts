@@ -1,0 +1,2 @@
+export const LEFT_IMAGE_URL = "https://mindshine-uploads-test.s3.eu-central-1.amazonaws.com/Left1.png"
+export const RIGT_IMAGE_URL = "https://mindshine-uploads-test.s3.eu-central-1.amazonaws.com/Right.png"
