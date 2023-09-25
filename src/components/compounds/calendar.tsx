@@ -17,10 +17,15 @@ interface MarkerData {
 }
 
 const Calendar = ({locale, markerList}: CalendarProps) => {
-  const monthAndYear = getMonthAndYear(locale)
-  const [currentMonth, setCurrentMonth] = useState(monthAndYear.monthNumber)
+  const defaultMonth = getMonthAndYear(locale)
+ 
+  //console.log(JSON.stringify(monthAndYear))
+  const [currentMonth, setCurrentMonth] = useState(defaultMonth.monthNumber)
   const [dataList, setDataList] =  useState(getMonthDate(locale, currentMonth)) 
-  console.log(JSON.stringify(dataList))
+  const monthAndYear = getMonthAndYear(locale, currentMonth)
+  console.log(JSON.stringify(monthAndYear))
+  //console.log(currentMonth)
+  //console.log(JSON.stringify(dataList))
 
   const updateMonthIncrease = () => {
       setCurrentMonth(currentMonth + 1)

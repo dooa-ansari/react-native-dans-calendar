@@ -37,12 +37,11 @@ export const getMonthDate = (locale: string, updateMonth: number) : CalanderData
     const currentDate = new Date()
     const currentYear = currentDate?.getFullYear()
     const currentMonth = updateMonth ?? currentDate?.getMonth()
-    const currentMonthDayCount = new Date(currentYear, currentMonth, 0).getDate();
+    const currentMonthDayCount = new Date(currentYear, currentMonth + 1, 0).getDate();
     const totalDaysInYear = ((currentYear % 4 === 0 && currentYear % 100 > 0) || currentYear % 400 == 0) ? 366 : 365;
     const firstDayOfMonth = new Date()
     firstDayOfMonth.setDate(1)
-    firstDayOfMonth.setMonth(9)
-    
+    firstDayOfMonth.setMonth(currentMonth)
     const daysData : CalanderData[] = []
     for (let i = 0; i < currentMonthDayCount; i++) {
       daysData.push({
@@ -59,10 +58,11 @@ export const getMonthDate = (locale: string, updateMonth: number) : CalanderData
   }
 
 
-  export const getMonthAndYear = (locale: string)  => {
+  export const getMonthAndYear = (locale: string, updateMonth?: number)  => {
     const currentDate = new Date()
     const currentYear = currentDate?.getFullYear()
-    const currentMonth = currentDate?.getMonth()
+    const currentMonth = updateMonth ?? currentDate?.getMonth()
+    currentDate.setMonth(currentMonth)
     const month = format(currentDate, MONTH_FULL, {locale: DATE_FNS_LOCALES[locale as keyof Locales]})
     return {
         month: month,
